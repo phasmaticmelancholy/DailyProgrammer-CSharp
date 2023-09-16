@@ -1,37 +1,7 @@
 ﻿//https://old.reddit.com/r/dailyprogrammer/comments/onfehl/20210719_challenge_399_easy_letter_value_sum/
-
-//Initialize alphabet and test data
-using System.Collections.Immutable;
+using System.ComponentModel;
 using System.Data;
 
-string alphabet = "abcdefghijklmnopqrstuvwxyz";
-Dictionary<char, int> letterToNumber = new Dictionary<char, int>{
-    {'a', 1}, 
-    {'b', 2},
-    {'c', 3},
-    {'d', 4},
-    {'e', 5},
-    {'f', 6},
-    {'g', 7},
-    {'h', 8},
-    {'i', 9},
-    {'j', 10},
-    {'k', 11},
-    {'l', 12},
-    {'m', 13},
-    {'n', 14},
-    {'o', 15},
-    {'p', 16},
-    {'q', 17},
-    {'r', 18},
-    {'s', 19},
-    {'t', 20},
-    {'u', 21},
-    {'v', 22},
-    {'w', 23},
-    {'x', 24},
-    {'y', 25},
-    {'z', 26}};
 string[] words = File.ReadAllLines("../../../enable1.txt");
 
 //0
@@ -49,8 +19,9 @@ WordToNumber("microspectrophotometries");
 Bonus1();
 Bonus2();
 Bonus3();
-Bonus4();
+//Bonus4();
 Bonus5();
+Bonus6();
 
 //Convert a provided String to a number that comes from the sum of all of the letters in that String, assuming each
 //letter has a value that corresponds to its position in the alphabet
@@ -126,6 +97,8 @@ void Bonus4()
 {
     for(int i=0; i<words.Length; i++)
     {
+        if(words[i].Equals("biodegradabilities ")) continue;
+
         int letterSum = WordToNumber(words[i], false);
         int length = words[i].Length;
         for(int j=i+1; j<words.Length; j++)
@@ -172,7 +145,46 @@ void Bonus5()
     }
 }
 
+//Sorts strings longest to shortest
+int CompareLengths(string word1, string word2)
+{
+    return word1.Length - word2.Length;
+}
+
+//TODO - this is both wrong and very inefficient, but the bones are there for something better
 void Bonus6()
 {
-    //TODO
+    List<string> results = new(); 
+    Array.Sort(words, CompareLengths);
+
+    //TODO Need to nest this different, currently each word only gets one chain
+    for(int i=words.Length-1; i>=0; i--)
+    {
+        List<string> activeResults = new(); 
+        int previousLetterSum = WordToNumber(words[i], false);
+        int previousLength = words[i].Length;
+
+        activeResults.Add(words[i]);
+        for(int j=i-1; j>=0; j--)
+        {
+            if(previousLength == words[j].Length) continue;
+
+            int letterSum = WordToNumber(words[j], false);
+
+            if(previousLetterSum < letterSum)
+            {
+                activeResults.Add(words[j]);
+                previousLetterSum = letterSum;
+                previousLength = words[j].Length;
+            }
+        }    
+
+        if(activeResults.Count > results.Count)
+        {
+            results = new(activeResults);
+            Console.WriteLine("New longest list: [" + String.Join(",", results) + "]");
+        } 
+    }
+
+    Console.WriteLine($"The longest list of reverse length ordered words with increasing letter sums found had {results.Count} words.");
 }
